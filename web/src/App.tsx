@@ -1,8 +1,17 @@
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Layout } from '@/components/layout';
+import { StoresListPage } from '@/pages/stores-list';
+import { StoreDetailPage } from '@/pages/store-detail';
+
 function App() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <h1 className="text-4xl font-bold">Tiny Inventory</h1>
-    </div>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<Navigate to="/stores" replace />} />
+        <Route path="stores" element={<StoresListPage />} />
+        <Route path="stores/:id" element={<StoreDetailPage />} />
+      </Route>
+    </Routes>
   );
 }
 
