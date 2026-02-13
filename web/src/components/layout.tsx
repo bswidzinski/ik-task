@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { to: '/stores', label: 'Stores' },
+  { to: '/products', label: 'Products' },
 ];
 
 export function Layout() {

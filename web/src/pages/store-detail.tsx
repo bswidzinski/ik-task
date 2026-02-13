@@ -6,16 +6,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StoreFormDialog } from '@/components/store-form-dialog';
 import { ConfirmDialog } from '@/components/confirm-dialog';
-import { useStore, useUpdateStore, useDeleteStore } from '@/hooks/use-stores';
+import {
+  ProductFormDialog,
+  type ProductFormData,
+} from '@/components/product-form-dialog';
+import { ProductsTable } from '@/components/products-table';
+import { useStore, useStores, useUpdateStore, useDeleteStore } from '@/hooks/use-stores';
+import { useStoreProducts, useCreateProduct } from '@/hooks/use-products';
 
 export function StoreDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: store, isLoading, error, refetch } = useStore(id!);
+  const { data: stores } = useStores();
+  const {
+    data: products,
+    isLoading: productsLoading,
+  } = useStoreProducts(id!);
   const updateStore = useUpdateStore();
   const deleteStore = useDeleteStore();
+  const createProduct = useCreateProduct();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [addProductOpen, setAddProductOpen] = useState(false);
 
   function handleUpdate(data: { name: string; address: string }) {
     updateStore.mutate(
@@ -38,6 +51,20 @@ export function StoreDetailPage() {
       },
       onError: (err) => toast.error(err.message),
     });
+  }
+
+  function handleCreateProduct(data: ProductFormData) {
+    const { storeId, ...productData } = data;
+    createProduct.mutate(
+      { storeId, data: productData },
+      {
+        onSuccess: () => {
+          setAddProductOpen(false);
+          toast.success('Product created');
+        },
+        onError: (err) => toast.error(err.message),
+      },
+    );
   }
 
   if (isLoading) {
@@ -72,7 +99,7 @@ export function StoreDetailPage() {
   if (!store) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{store.name}</h1>
         <div className="flex gap-2">
@@ -105,6 +132,24 @@ export function StoreDetailPage() {
         </CardContent>
       </Card>
 
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Products</h2>
+          <Button
+            variant="outline"
+            onClick={() => setAddProductOpen(true)}
+          >
+            Add Product
+          </Button>
+        </div>
+        <ProductsTable
+          products={products}
+          isLoading={productsLoading}
+          showStore={false}
+          emptyMessage="No products in this store yet"
+        />
+      </div>
+
       <StoreFormDialog
         open={editOpen}
         onOpenChange={setEditOpen}
@@ -120,7 +165,17 @@ export function StoreDetailPage() {
         onConfirm={handleDelete}
         isPending={deleteStore.isPending}
         title="Delete Store"
-        description={`Are you sure you want to delete "${store.name}"? This action cannot be undone.`}
+        description={`Are you sure you want to delete "${store.name}"? This will also delete all its products. This action cannot be undone.`}
+      />
+
+      <ProductFormDialog
+        open={addProductOpen}
+        onOpenChange={setAddProductOpen}
+        onSubmit={handleCreateProduct}
+        isPending={createProduct.isPending}
+        stores={stores ?? []}
+        fixedStoreId={id}
+        title="Add Product"
       />
     </div>
   );
