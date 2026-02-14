@@ -9,10 +9,12 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
-import { ProductsService } from './products.service';
+import { ProductsService, PaginatedProducts } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { QueryProductsDto } from './dto/query-products.dto';
 import { Product } from './product.entity';
 
 @Controller()
@@ -20,8 +22,8 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get('products')
-  findAll(): Promise<Product[]> {
-    return this.productsService.findAll();
+  findAll(@Query() query: QueryProductsDto): Promise<PaginatedProducts> {
+    return this.productsService.findAll(query);
   }
 
   @Get('products/:id')
@@ -32,8 +34,9 @@ export class ProductsController {
   @Get('stores/:storeId/products')
   findByStore(
     @Param('storeId', ParseUUIDPipe) storeId: string,
-  ): Promise<Product[]> {
-    return this.productsService.findByStore(storeId);
+    @Query() query: QueryProductsDto,
+  ): Promise<PaginatedProducts> {
+    return this.productsService.findAll(query, storeId);
   }
 
   @Post('stores/:storeId/products')

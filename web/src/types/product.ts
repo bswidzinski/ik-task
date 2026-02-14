@@ -32,6 +32,29 @@ export interface Product {
   updatedAt: string;
 }
 
+export interface PaginatedProducts {
+  data: Product[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface ProductQuery {
+  search?: string;
+  category?: ProductCategory;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  storeId?: string;
+  sortBy?: 'name' | 'price' | 'quantity' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}
+
 export interface CreateProductInput {
   name: string;
   category: ProductCategory;

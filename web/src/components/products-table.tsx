@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Table,
@@ -18,6 +19,7 @@ interface ProductsTableProps {
   isLoading: boolean;
   showStore?: boolean;
   emptyMessage?: string;
+  emptyAction?: ReactNode;
 }
 
 export function ProductsTable({
@@ -25,6 +27,7 @@ export function ProductsTable({
   isLoading,
   showStore = true,
   emptyMessage = 'No products yet',
+  emptyAction,
 }: ProductsTableProps) {
   if (isLoading) {
     return (
@@ -38,9 +41,10 @@ export function ProductsTable({
 
   if (!products?.length) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        {emptyMessage}
-      </p>
+      <div className="flex flex-col items-center gap-2 py-8">
+        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+        {emptyAction}
+      </div>
     );
   }
 

@@ -1,16 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as api from '@/api/products';
-import type { CreateProductInput, UpdateProductInput } from '@/types/product';
+import type {
+  ProductQuery,
+  CreateProductInput,
+  UpdateProductInput,
+} from '@/types/product';
 
 const PRODUCTS_KEY = ['products'] as const;
 const productKey = (id: string) => ['products', id] as const;
 const storeProductsKey = (storeId: string) =>
   ['stores', storeId, 'products'] as const;
 
-export function useProducts() {
+export function useProducts(query: ProductQuery = {}) {
   return useQuery({
-    queryKey: PRODUCTS_KEY,
-    queryFn: api.getProducts,
+    queryKey: [...PRODUCTS_KEY, query],
+    queryFn: () => api.getProducts(query),
   });
 }
 
@@ -21,10 +25,10 @@ export function useProduct(id: string) {
   });
 }
 
-export function useStoreProducts(storeId: string) {
+export function useStoreProducts(storeId: string, query: ProductQuery = {}) {
   return useQuery({
-    queryKey: storeProductsKey(storeId),
-    queryFn: () => api.getStoreProducts(storeId),
+    queryKey: [...storeProductsKey(storeId), query],
+    queryFn: () => api.getStoreProducts(storeId, query),
   });
 }
 
@@ -66,7 +70,6 @@ export function useDeleteProduct() {
     mutationFn: (id: string) => api.deleteProduct(id),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: PRODUCTS_KEY });
-      // Invalidate all store-products queries since we don't know which store
       void qc.invalidateQueries({ queryKey: ['stores'], exact: false });
     },
   });

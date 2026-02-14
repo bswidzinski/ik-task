@@ -1,20 +1,35 @@
 import type {
   Product,
+  PaginatedProducts,
+  ProductQuery,
   CreateProductInput,
   UpdateProductInput,
 } from '@/types/product';
 import { request } from './request';
 
-export function getProducts(): Promise<Product[]> {
-  return request<Product[]>('/api/products');
+function buildQueryString(params: ProductQuery): string {
+  const entries = Object.entries(params).filter(
+    ([, v]) => v != null && v !== '',
+  );
+  if (entries.length === 0) return '';
+  return '?' + new URLSearchParams(entries.map(([k, v]) => [k, String(v)])).toString();
+}
+
+export function getProducts(query: ProductQuery = {}): Promise<PaginatedProducts> {
+  return request<PaginatedProducts>(`/api/products${buildQueryString(query)}`);
 }
 
 export function getProduct(id: string): Promise<Product> {
   return request<Product>(`/api/products/${id}`);
 }
 
-export function getStoreProducts(storeId: string): Promise<Product[]> {
-  return request<Product[]>(`/api/stores/${storeId}/products`);
+export function getStoreProducts(
+  storeId: string,
+  query: ProductQuery = {},
+): Promise<PaginatedProducts> {
+  return request<PaginatedProducts>(
+    `/api/stores/${storeId}/products${buildQueryString(query)}`,
+  );
 }
 
 export function createProduct(

@@ -11,18 +11,22 @@ import {
   type ProductFormData,
 } from '@/components/product-form-dialog';
 import { ProductsTable } from '@/components/products-table';
+import { ProductFilters } from '@/components/product-filters';
+import { Pagination } from '@/components/pagination';
 import { useStore, useStores, useUpdateStore, useDeleteStore } from '@/hooks/use-stores';
 import { useStoreProducts, useCreateProduct } from '@/hooks/use-products';
+import { useProductFilters } from '@/hooks/use-product-filters';
 
 export function StoreDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: store, isLoading, error, refetch } = useStore(id!);
   const { data: stores } = useStores();
+  const { query, setFilter, clearFilters, hasFilters } = useProductFilters();
   const {
-    data: products,
+    data: productsResult,
     isLoading: productsLoading,
-  } = useStoreProducts(id!);
+  } = useStoreProducts(id!, query);
   const updateStore = useUpdateStore();
   const deleteStore = useDeleteStore();
   const createProduct = useCreateProduct();
@@ -142,12 +146,42 @@ export function StoreDetailPage() {
             Add Product
           </Button>
         </div>
+
+        <ProductFilters
+          query={query}
+          setFilter={setFilter}
+          clearFilters={clearFilters}
+          hasFilters={hasFilters}
+        />
+
         <ProductsTable
-          products={products}
+          products={productsResult?.data}
           isLoading={productsLoading}
           showStore={false}
-          emptyMessage="No products in this store yet"
+          emptyMessage={
+            hasFilters
+              ? 'No products match your filters'
+              : 'No products in this store yet'
+          }
+          emptyAction={
+            hasFilters ? (
+              <Button variant="outline" size="sm" onClick={clearFilters}>
+                Clear filters
+              </Button>
+            ) : undefined
+          }
         />
+
+        {productsResult?.meta && (
+          <Pagination
+            page={productsResult.meta.page}
+            totalPages={productsResult.meta.totalPages}
+            total={productsResult.meta.total}
+            limit={productsResult.meta.limit}
+            onPageChange={(page) => setFilter({ page })}
+            onLimitChange={(limit) => setFilter({ limit, page: undefined })}
+          />
+        )}
       </div>
 
       <StoreFormDialog
