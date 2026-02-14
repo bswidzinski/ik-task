@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { StoresModule } from './stores/stores.module';
 import { ProductsModule } from './products/products.module';
 import { ReportsModule } from './reports/reports.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ReportsModule } from './reports/reports.module';
     StoresModule,
     ProductsModule,
     ReportsModule,
+    SeedModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
