@@ -4,6 +4,7 @@ import { StoresListPage } from '@/pages/stores-list';
 import { StoreDetailPage } from '@/pages/store-detail';
 import { ProductsListPage } from '@/pages/products-list';
 import { ProductDetailPage } from '@/pages/product-detail';
+import { LowStockReportPage } from '@/pages/low-stock-report';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="stores/:id" element={<StoreDetailPage />} />
         <Route path="products" element={<ProductsListPage />} />
         <Route path="products/:id" element={<ProductDetailPage />} />
+        <Route path="reports/low-stock" element={<LowStockReportPage />} />
       </Route>
     </Routes>
   );

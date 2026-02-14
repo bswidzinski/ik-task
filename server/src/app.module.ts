@@ -5,12 +5,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { StoresModule } from './stores/stores.module';
 import { ProductsModule } from './products/products.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     StoresModule,
     ProductsModule,
+    ReportsModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

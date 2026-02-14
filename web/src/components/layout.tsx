@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { to: '/stores', label: 'Stores' },
   { to: '/products', label: 'Products' },
+  { to: '/reports/low-stock', label: 'Low Stock' },
 ];
 
 export function Layout() {
