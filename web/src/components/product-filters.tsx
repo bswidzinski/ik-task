@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,7 +14,7 @@ import { PRODUCT_CATEGORIES, CATEGORY_LABELS } from '@/types/product';
 
 interface ProductFiltersProps {
   query: ProductQuery;
-  setFilter: (updates: Partial<ProductQuery>, debounceMs?: number) => void;
+  setFilter: (updates: Partial<ProductQuery>) => void;
   clearFilters: () => void;
   hasFilters: boolean;
 }
@@ -34,6 +34,19 @@ export function ProductFilters({
 }: ProductFiltersProps) {
   const [searchInput, setSearchInput] = useState(query.search ?? '');
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilter({ search: searchInput || undefined });
+    }, 300);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
+
+  // Sync search input when query changes externally (e.g. clear filters)
+  useEffect(() => {
+    setSearchInput(query.search ?? '');
+  }, [query.search]);
+
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-end gap-3">
@@ -42,10 +55,7 @@ export function ProductFilters({
           <Input
             placeholder="Search products..."
             value={searchInput}
-            onChange={(e) => {
-              setSearchInput(e.target.value);
-              setFilter({ search: e.target.value || undefined }, 300);
-            }}
+            onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
 

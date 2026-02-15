@@ -1,88 +1,90 @@
-import { useCallback, useMemo, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useCallback, useMemo } from 'react';
+import {
+  useQueryStates,
+  parseAsString,
+  parseAsInteger,
+  parseAsFloat,
+  parseAsBoolean,
+  parseAsStringLiteral,
+} from 'nuqs';
 import type { ProductQuery, ProductCategory } from '@/types/product';
 import { PRODUCT_CATEGORIES } from '@/types/product';
 
+const sortByValues = ['name', 'price', 'quantity', 'createdAt'] as const;
+const sortOrderValues = ['asc', 'desc'] as const;
+
+const filtersParsers = {
+  search: parseAsString,
+  category: parseAsStringLiteral(PRODUCT_CATEGORIES),
+  minPrice: parseAsFloat,
+  maxPrice: parseAsFloat,
+  inStock: parseAsBoolean,
+  sortBy: parseAsStringLiteral(sortByValues),
+  sortOrder: parseAsStringLiteral(sortOrderValues),
+  page: parseAsInteger,
+  limit: parseAsInteger,
+};
+
 export function useProductFilters() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const [params, setParams] = useQueryStates(filtersParsers, {
+    history: 'replace',
+  });
 
   const query: ProductQuery = useMemo(() => {
     const q: ProductQuery = {};
-    const search = searchParams.get('search');
-    if (search) q.search = search;
-    const category = searchParams.get('category');
-    if (category && PRODUCT_CATEGORIES.includes(category as ProductCategory))
-      q.category = category as ProductCategory;
-    const minPrice = searchParams.get('minPrice');
-    if (minPrice && !isNaN(Number(minPrice))) q.minPrice = Number(minPrice);
-    const maxPrice = searchParams.get('maxPrice');
-    if (maxPrice && !isNaN(Number(maxPrice))) q.maxPrice = Number(maxPrice);
-    const inStock = searchParams.get('inStock');
-    if (inStock === 'true') q.inStock = true;
-    if (inStock === 'false') q.inStock = false;
-    const sortBy = searchParams.get('sortBy') as ProductQuery['sortBy'];
-    if (sortBy && ['name', 'price', 'quantity', 'createdAt'].includes(sortBy))
-      q.sortBy = sortBy;
-    const sortOrder = searchParams.get('sortOrder') as ProductQuery['sortOrder'];
-    if (sortOrder && ['asc', 'desc'].includes(sortOrder))
-      q.sortOrder = sortOrder;
-    const page = searchParams.get('page');
-    if (page && Number(page) >= 1) q.page = Number(page);
-    const limit = searchParams.get('limit');
-    if (limit && Number(limit) >= 1) q.limit = Number(limit);
+    if (params.search) q.search = params.search;
+    if (params.category) q.category = params.category as ProductCategory;
+    if (params.minPrice != null) q.minPrice = params.minPrice;
+    if (params.maxPrice != null) q.maxPrice = params.maxPrice;
+    if (params.inStock != null) q.inStock = params.inStock;
+    if (params.sortBy) q.sortBy = params.sortBy;
+    if (params.sortOrder) q.sortOrder = params.sortOrder;
+    if (params.page != null) q.page = params.page;
+    if (params.limit != null) q.limit = params.limit;
     return q;
-  }, [searchParams]);
+  }, [params]);
 
   const setFilter = useCallback(
-    (updates: Partial<ProductQuery>, debounceMs?: number) => {
-      const apply = () => {
-        setSearchParams(
-          (prev) => {
-            const next = new URLSearchParams(prev);
-            // Reset page when filters change (unless page itself is being set)
-            if (!('page' in updates)) {
-              next.delete('page');
-            }
-            for (const [key, value] of Object.entries(updates)) {
-              if (value == null || value === '' || value === undefined) {
-                next.delete(key);
-              } else {
-                next.set(key, String(value));
-              }
-            }
-            return next;
-          },
-          { replace: true },
-        );
-      };
-
-      if (debounceMs) {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(apply, debounceMs);
-      } else {
-        apply();
+    (updates: Partial<ProductQuery>) => {
+      const nuqsUpdates: Partial<typeof params> = {};
+      for (const [key, value] of Object.entries(updates)) {
+        (nuqsUpdates as Record<string, unknown>)[key] =
+          value === undefined || value === '' ? null : value;
       }
+      // Reset page when non-page filters change
+      if (!('page' in updates)) {
+        nuqsUpdates.page = null;
+      }
+      void setParams(nuqsUpdates);
     },
-    [setSearchParams],
+    [setParams],
   );
 
   const clearFilters = useCallback(() => {
-    setSearchParams({}, { replace: true });
-  }, [setSearchParams]);
+    void setParams({
+      search: null,
+      category: null,
+      minPrice: null,
+      maxPrice: null,
+      inStock: null,
+      sortBy: null,
+      sortOrder: null,
+      page: null,
+      limit: null,
+    });
+  }, [setParams]);
 
   const hasFilters = useMemo(() => {
-    const filterKeys = [
-      'search',
-      'category',
-      'minPrice',
-      'maxPrice',
-      'inStock',
-      'sortBy',
-      'sortOrder',
-    ];
-    return filterKeys.some((k) => searchParams.has(k));
-  }, [searchParams]);
+    return !!(
+      params.search ||
+      params.category ||
+      params.minPrice != null ||
+      params.maxPrice != null ||
+      params.inStock != null ||
+      params.sortBy ||
+      params.sortOrder
+    );
+  }, [params]);
 
   return { query, setFilter, clearFilters, hasFilters };
 }
