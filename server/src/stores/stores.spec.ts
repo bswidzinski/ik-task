@@ -6,7 +6,6 @@ import {
   createProduct,
   clearDatabase,
 } from '../test-utils';
-import { ProductCategory } from '../products/product.entity';
 
 describe('Stores API', () => {
   let app: INestApplication;

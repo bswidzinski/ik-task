@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout';
 import { StoresListPage } from '@/pages/stores-list';
 import { StoreDetailPage } from '@/pages/store-detail';
@@ -16,6 +16,23 @@ function App() {
         <Route path="products" element={<ProductsListPage />} />
         <Route path="products/:id" element={<ProductDetailPage />} />
         <Route path="reports/low-stock" element={<LowStockReportPage />} />
+        <Route
+          path="*"
+          element={
+            <div className="flex flex-col items-center gap-4 py-12">
+              <h1 className="text-2xl font-bold">Page not found</h1>
+              <p className="text-muted-foreground">
+                The page you're looking for doesn't exist.
+              </p>
+              <Link
+                to="/stores"
+                className="text-sm underline hover:text-foreground"
+              >
+                Go to Stores
+              </Link>
+            </div>
+          }
+        />
       </Route>
     </Routes>
   );

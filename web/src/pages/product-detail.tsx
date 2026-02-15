@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import { HttpError } from '@/api/request';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -70,7 +71,7 @@ export function ProductDetailPage() {
   }
 
   if (error) {
-    const is404 = error.message.includes('not found');
+    const is404 = error instanceof HttpError && error.status === 404;
     return (
       <div className="flex flex-col items-center gap-4 py-12">
         <p className="text-destructive">

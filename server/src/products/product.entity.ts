@@ -28,7 +28,12 @@ export class Product {
   @Column({ type: 'varchar' })
   category!: ProductCategory;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    transformer: { to: (v: number) => v, from: (v: string) => parseFloat(v) },
+  })
   price!: number;
 
   @Column({ type: 'int', default: 0 })

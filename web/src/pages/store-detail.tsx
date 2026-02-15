@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { HttpError } from '@/api/request';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,7 +23,7 @@ export function StoreDetailPage() {
   const navigate = useNavigate();
   const { data: store, isLoading, error, refetch } = useStore(id!);
   const { data: stores } = useStores();
-  const { query, setFilter, clearFilters, hasFilters } = useProductFilters();
+  const { query, setFilter, clearFilters, hasFilters } = useProductFilters('sp_');
   const {
     data: productsResult,
     isLoading: productsLoading,
@@ -81,7 +82,7 @@ export function StoreDetailPage() {
   }
 
   if (error) {
-    const is404 = error.message.includes('not found');
+    const is404 = error instanceof HttpError && error.status === 404;
     return (
       <div className="flex flex-col items-center gap-4 py-12">
         <p className="text-destructive">

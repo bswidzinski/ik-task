@@ -25,9 +25,20 @@ const filtersParsers = {
   limit: parseAsInteger,
 };
 
-export function useProductFilters() {
+const filterKeys = Object.keys(filtersParsers) as (keyof typeof filtersParsers)[];
+
+function buildUrlKeys(prefix: string) {
+  const urlKeys: Record<string, string> = {};
+  for (const key of filterKeys) {
+    urlKeys[key] = `${prefix}${key}`;
+  }
+  return urlKeys as { [K in keyof typeof filtersParsers]: string };
+}
+
+export function useProductFilters(prefix = '') {
   const [params, setParams] = useQueryStates(filtersParsers, {
     history: 'replace',
+    ...(prefix ? { urlKeys: buildUrlKeys(prefix) } : {}),
   });
 
   const query: ProductQuery = useMemo(() => {

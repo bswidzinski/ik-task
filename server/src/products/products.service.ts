@@ -56,7 +56,10 @@ export class ProductsService {
 
     if (effectiveStoreId) where.storeId = effectiveStoreId;
     if (category) where.category = category;
-    if (search) where.name = ILike(`%${search}%`);
+    if (search) {
+      const escaped = search.replace(/[%_]/g, '\\$&');
+      where.name = ILike(`%${escaped}%`);
+    }
     if (inStock != null) where.quantity = inStock ? MoreThan(0) : Equal(0);
     if (minPrice != null || maxPrice != null) {
       where.price = And(

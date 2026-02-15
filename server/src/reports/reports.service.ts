@@ -59,7 +59,7 @@ export class ReportsService {
     );
 
     const totalRestockCost = products.reduce(
-      (sum, p) => sum + Number(p.price) * (threshold - p.quantity),
+      (sum, p) => sum + p.price * (threshold - p.quantity),
       0,
     );
 
