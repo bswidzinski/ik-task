@@ -99,6 +99,7 @@ describe('Reports API', () => {
         .expect(200);
 
       expect(res.body.totalRestockCost).toBe(30);
+      expect(res.body.stores[0].restockCost).toBe(30);
       expect(res.body.stores[0].products[0].deficit).toBe(3);
     });
 

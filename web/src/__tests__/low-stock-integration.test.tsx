@@ -21,16 +21,18 @@ describe('LowStockReportPage integration', () => {
     vi.advanceTimersByTime(350);
 
     await waitFor(() => {
-      expect(screen.getByText('$2500.50')).toBeInTheDocument();
+      expect(screen.getByText('$6509.86')).toBeInTheDocument();
     });
 
-    // Store sections with products
+    // Store sections with per-store restock costs
     expect(screen.getByText('Tech Store')).toBeInTheDocument();
+    expect(screen.getByText('Restock cost: $5559.91')).toBeInTheDocument();
     expect(screen.getByText('2 low')).toBeInTheDocument();
     expect(screen.getByText('iPhone')).toBeInTheDocument();
     expect(screen.getByText('Kindle')).toBeInTheDocument();
 
     expect(screen.getByText('Fashion Store')).toBeInTheDocument();
+    expect(screen.getByText('Restock cost: $949.95')).toBeInTheDocument();
     expect(screen.getByText('1 low')).toBeInTheDocument();
     expect(screen.getByText('Winter Parka')).toBeInTheDocument();
   });

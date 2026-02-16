@@ -13,6 +13,7 @@ export interface LowStockStore {
   storeId: string;
   storeName: string;
   lowStockCount: number;
+  restockCost: number;
   products: LowStockProduct[];
 }
 

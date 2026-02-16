@@ -58,12 +58,13 @@ export const mockPaginatedProducts: PaginatedProducts = {
 export const mockLowStockReport: LowStockReport = {
   threshold: 5,
   totalLowStockProducts: 3,
-  totalRestockCost: 2500.5,
+  totalRestockCost: 6509.86,
   stores: [
     {
       storeId: 's1',
       storeName: 'Tech Store',
       lowStockCount: 2,
+      restockCost: 5559.91,
       products: [
         {
           id: 'p1',
@@ -87,6 +88,7 @@ export const mockLowStockReport: LowStockReport = {
       storeId: 's2',
       storeName: 'Fashion Store',
       lowStockCount: 1,
+      restockCost: 949.95,
       products: [
         {
           id: 'p3',

@@ -11,6 +11,7 @@ export interface LowStockReport {
     storeId: string;
     storeName: string;
     lowStockCount: number;
+    restockCost: number;
     products: (Pick<
       Product,
       'id' | 'name' | 'category' | 'price' | 'quantity'
@@ -42,31 +43,34 @@ export class ReportsService {
           storeId: product.storeId,
           storeName: product.store.name,
           lowStockCount: 0,
+          restockCost: 0,
           products: [],
         });
       }
 
       const store = storeMap.get(product.storeId)!;
+      const deficit = threshold - product.quantity;
       store.lowStockCount++;
+      store.restockCost += product.price * deficit;
       store.products.push({
         ...product,
-        deficit: threshold - product.quantity,
+        deficit,
       });
     }
 
-    const stores = [...storeMap.values()].sort(
-      (a, b) => b.lowStockCount - a.lowStockCount,
-    );
-
-    const totalRestockCost = products.reduce(
-      (sum, p) => sum + p.price * (threshold - p.quantity),
-      0,
-    );
+    let totalRestockCost = 0;
+    const stores = [...storeMap.values()]
+      .sort((a, b) => b.lowStockCount - a.lowStockCount)
+      .map((store) => {
+        store.restockCost = Math.round(store.restockCost * 100) / 100;
+        totalRestockCost += store.restockCost;
+        return store;
+      });
 
     return {
       threshold,
       totalLowStockProducts: products.length,
-      totalRestockCost: Math.round(totalRestockCost * 100) / 100,
+      totalRestockCost,
       stores,
     };
   }

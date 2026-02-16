@@ -45,6 +45,7 @@ export function useCreateProduct() {
     onSuccess: (_result, { storeId }) => {
       void qc.invalidateQueries({ queryKey: PRODUCTS_KEY });
       void qc.invalidateQueries({ queryKey: storeProductsKey(storeId) });
+      void qc.invalidateQueries({ queryKey: ['stores'], exact: false });
     },
   });
 }
@@ -60,6 +61,7 @@ export function useUpdateProduct() {
       void qc.invalidateQueries({
         queryKey: storeProductsKey(result.storeId),
       });
+      void qc.invalidateQueries({ queryKey: ['stores'], exact: false });
     },
   });
 }
