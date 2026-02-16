@@ -40,6 +40,8 @@ No database indexes added. With the current dataset this has no impact, but at s
 
 The data model uses a one-to-many Store-to-Product relationship for simplicity. A many-to-many would be more natural to me (one product can be sold in multiple stores), but the task would get much more complicated and one-to-many meets the requirements, so I decided to go with simple approach.
 
+Database credentials use environment variables with hardcoded defaults for development convenience. In production, secrets should be injected via a secrets manager (AWS Secrets Manager) or CI/CD pipeline variables.
+
 **Vite + React over Next.js** because there's no need for SSR, the Docker setup is simpler (nginx serving static files). TanStack Query handles data fetching with built-in caching, automatic loading/error states, and cache invalidation on mutations.
 
 **nuqs** manages filter state via URL query parameters, making filters shareable, bookmarkable, and resilient to page refresh. 
@@ -54,7 +56,7 @@ The data model uses a one-to-many Store-to-Product relationship for simplicity. 
 
 The logic implemented in the reports service is functional and works for small data. If we had a use case with a lot of data we would have to think this all over. Use a SQL aggregation (it's more efficient than calculating in node) and limit the number of displayed items.
 
-
+For production I'd also add structured logging and rate limiting.
 
 ## Testing Approach
 
