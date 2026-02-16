@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { z } from 'zod';
 import {
   Dialog,
   DialogContent,
@@ -7,8 +8,20 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { FormField } from '@/components/form-field';
 import type { Store } from '@/types/store';
+import { extractErrors } from '@/lib/validation';
+
+const storeSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'Name must be at least 2 characters'),
+  address: z
+    .string()
+    .trim()
+    .min(2, 'Address must be at least 2 characters'),
+});
 
 interface StoreFormDialogProps {
   open: boolean;
@@ -17,6 +30,11 @@ interface StoreFormDialogProps {
   isPending: boolean;
   initialData?: Pick<Store, 'name' | 'address'>;
   title: string;
+}
+
+interface FormState {
+  name: string;
+  address: string;
 }
 
 function StoreForm({
@@ -32,26 +50,25 @@ function StoreForm({
   initialData?: Pick<Store, 'name' | 'address'>;
   title: string;
 }) {
-  const [name, setName] = useState(initialData?.name ?? '');
-  const [address, setAddress] = useState(initialData?.address ?? '');
-  const [errors, setErrors] = useState<{ name?: string; address?: string }>({});
+  const [formData, setFormData] = useState<FormState>({
+    name: initialData?.name ?? '',
+    address: initialData?.address ?? '',
+  });
+  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
 
-  function validate() {
-    const errs: { name?: string; address?: string } = {};
-    if (name.trim().length < 2) errs.name = 'Name must be at least 2 characters';
-    if (address.trim().length < 2)
-      errs.address = 'Address must be at least 2 characters';
-    return errs;
+  function handleChange(field: keyof FormState, value: string) {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
+    const result = storeSchema.safeParse(formData);
+    if (!result.success) {
+      setErrors(extractErrors(result.error));
       return;
     }
-    onSubmit({ name: name.trim(), address: address.trim() });
+    onSubmit(result.data);
   }
 
   return (
@@ -60,36 +77,24 @@ function StoreForm({
         <DialogTitle>{title}</DialogTitle>
       </DialogHeader>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
+        <FormField label="Name" htmlFor="name" error={errors.name}>
           <Input
             id="name"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setErrors((prev) => ({ ...prev, name: undefined }));
-            }}
+            value={formData.name}
+            onChange={(e) => handleChange('name', e.target.value)}
             placeholder="Store name"
           />
-          {errors.name && (
-            <p className="text-sm text-destructive">{errors.name}</p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="address">Address</Label>
+        </FormField>
+
+        <FormField label="Address" htmlFor="address" error={errors.address}>
           <Input
             id="address"
-            value={address}
-            onChange={(e) => {
-              setAddress(e.target.value);
-              setErrors((prev) => ({ ...prev, address: undefined }));
-            }}
+            value={formData.address}
+            onChange={(e) => handleChange('address', e.target.value)}
             placeholder="Store address"
           />
-          {errors.address && (
-            <p className="text-sm text-destructive">{errors.address}</p>
-          )}
-        </div>
+        </FormField>
+
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel

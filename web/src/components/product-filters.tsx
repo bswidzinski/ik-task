@@ -39,8 +39,7 @@ export function ProductFilters({
       setFilter({ search: searchInput || undefined });
     }, 300);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchInput]);
+  }, [searchInput, setFilter]);
 
   // Sync search input when query changes externally (e.g. clear filters)
   useEffect(() => {
