@@ -7,6 +7,7 @@ import type {
 } from '@/types/product';
 
 const PRODUCTS_KEY = ['products'] as const;
+const LOW_STOCK_KEY = ['low-stock-report'] as const;
 const productKey = (id: string) => ['products', id] as const;
 const storeProductsKey = (storeId: string) =>
   ['stores', storeId, 'products'] as const;
@@ -46,6 +47,7 @@ export function useCreateProduct() {
       void qc.invalidateQueries({ queryKey: PRODUCTS_KEY });
       void qc.invalidateQueries({ queryKey: storeProductsKey(storeId) });
       void qc.invalidateQueries({ queryKey: ['stores'], exact: false });
+      void qc.invalidateQueries({ queryKey: LOW_STOCK_KEY });
     },
   });
 }
@@ -62,6 +64,7 @@ export function useUpdateProduct() {
         queryKey: storeProductsKey(result.storeId),
       });
       void qc.invalidateQueries({ queryKey: ['stores'], exact: false });
+      void qc.invalidateQueries({ queryKey: LOW_STOCK_KEY });
     },
   });
 }
@@ -73,6 +76,7 @@ export function useDeleteProduct() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: PRODUCTS_KEY });
       void qc.invalidateQueries({ queryKey: ['stores'], exact: false });
+      void qc.invalidateQueries({ queryKey: LOW_STOCK_KEY });
     },
   });
 }

@@ -46,6 +46,7 @@ export function useDeleteStore() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: STORES_KEY });
       void qc.invalidateQueries({ queryKey: ['products'] });
+      void qc.invalidateQueries({ queryKey: ['low-stock-report'] });
     },
   });
 }
