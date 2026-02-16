@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import { server } from "./msw/server";
 
 // Radix UI needs pointer capture APIs that jsdom doesn't provide
 Element.prototype.hasPointerCapture = () => false;
@@ -12,3 +13,8 @@ globalThis.ResizeObserver = class {
   unobserve() {}
   disconnect() {}
 };
+
+// MSW lifecycle
+beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());

@@ -1,6 +1,6 @@
-import { type ReactNode } from "react";
+import { type ReactNode, type ReactElement } from "react";
 import { render, type RenderOptions } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NuqsTestingAdapter } from "nuqs/adapters/testing";
 
@@ -13,12 +13,14 @@ function createTestQueryClient() {
   });
 }
 
+interface ProviderOptions extends RenderOptions {
+  route?: string;
+  path?: string;
+}
+
 export function renderWithProviders(
   ui: ReactNode,
-  {
-    route = "/",
-    ...renderOptions
-  }: RenderOptions & { route?: string } = {},
+  { route = "/", path, ...renderOptions }: ProviderOptions = {},
 ) {
   const queryClient = createTestQueryClient();
 
@@ -32,5 +34,14 @@ export function renderWithProviders(
     );
   }
 
-  return render(ui, { wrapper: Wrapper, ...renderOptions });
+  // When `path` is provided, wrap ui in <Routes><Route> so useParams works
+  const element = path ? (
+    <Routes>
+      <Route path={path} element={ui as ReactElement} />
+    </Routes>
+  ) : (
+    ui
+  );
+
+  return render(element, { wrapper: Wrapper, ...renderOptions });
 }
