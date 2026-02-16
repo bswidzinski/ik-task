@@ -6,7 +6,7 @@ import { server } from './msw/server';
 import { renderWithProviders } from './test-utils';
 import { ProductsListPage } from '@/pages/products-list';
 import { ProductDetailPage } from '@/pages/product-detail';
-import { mockProducts, mockStores } from './msw/handlers';
+import { mockProducts } from './msw/handlers';
 import type { Product } from '@/types/product';
 
 describe('ProductsListPage integration', () => {
