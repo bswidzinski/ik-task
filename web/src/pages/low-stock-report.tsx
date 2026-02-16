@@ -127,9 +127,14 @@ export function LowStockReportPage() {
                             {store.storeName}
                           </Link>
                         </CardTitle>
-                        <Badge variant="destructive">
-                          {store.lowStockCount} low
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold">
+                            Restock cost: {formatPrice(store.restockCost)}
+                          </span>
+                          <Badge variant="destructive">
+                            {store.lowStockCount} low
+                          </Badge>
+                        </div>
                       </div>
                     </CardHeader>
                   </CollapsibleTrigger>
